@@ -1,0 +1,66 @@
+# Contributor: Ecmel Ercan <ecmel dot ercan at gmail dot com>
+# Contributor: Eric Bélanger <eric@archlinux.org>
+# Maintainer: Stefan Husmann <stefan-husmann@t-online.de>
+# Maintainer: Ronny Lorenz <raumzeit@gmx.net>
+
+pkgname=nedit-motif
+pkgver=5.6a
+pkgrel=1
+pkgdesc="A Unix text editor for programmers and general users"
+dirname=nedit
+arch=('i686' 'x86_64')
+url="http://www.nedit.org/"
+license=('GPL' 'custom')
+depends=('openmotif' 'libxpm')
+provides=('nedit')
+conflicts=('nedit')
+source=("http://sourceforge.net/projects/nedit/files/nedit-source/${dirname}-${pkgver}-src.tar.gz"
+        "nedit-256x256.png"
+        "nedit-128x128.png"
+        "nedit-64x64.png"
+        "nedit-48x48.png"
+        "nedit-32x32.png"
+        "nedit-24x24.png"
+        "nedit-16x16.png"
+        "nedit.desktop")
+
+sha1sums=('3f7a39bf0968cf0598bf8d6e2062f243f3aaac96'
+          'e238821d30a95fc8181fc12c42c8cbcf5ee00b96'
+          '9c921b361a587111e927b300ba09360c4245a679'
+          'b98ddef927b952e21a4dc566496d077c8faa9eae'
+          '18305a2ff376a4effaa47c7304215fe841261a3d'
+          '782be7c47e1fc221d809c49e347ea5f651501ec0'
+          'cc7faee0da681b2935a7ea2538f9963f8b99f9db'
+          '708ce070e29d430ae93d35056ab0d71264305354'
+          '1f42ba5681006a39bed2f4036802e3d1c731d2ef')
+
+LANG=C
+prepare() {
+  cd "${srcdir}/${dirname}-${pkgver/a/}"
+  sed -i 's/-Wl,-Bstatic//' makefiles/Makefile.linux
+  sed -i 's|fgets|//fgets|' util/check_lin_tif.c
+  sed -i "s/CFLAGS=-O/CFLAGS=${CFLAGS} -DBUILD_UNTESTED_NEDIT/" makefiles/Makefile.linux
+  sed -i 's|"/bin/csh"|"/bin/sh"|' source/preferences.c
+}
+
+build() {
+  cd ${dirname}-${pkgver/a/}
+  make CFLAGS+="${CFLAGS} -DBUILD_UNTESTED_NEDIT" linux docs
+}
+
+package() {
+  cd ${dirname}-${pkgver/a/}
+  install -Dm755 source/nedit "${pkgdir}/usr/bin/nedit"
+  install -Dm755 source/nc "${pkgdir}/usr/bin/nedit-client"
+  install -Dm644 doc/nedit.man "${pkgdir}/usr/share/man/man1/nedit.1"
+  install -Dm644 doc/nc.man "${pkgdir}/usr/share/man/man1/nedit-client.1"
+  install -Dm644 doc/nedit.html "${pkgdir}/usr/share/doc/nedit/nedit.html"
+  # install .desktop file
+  install -Dm755 ../nedit.desktop "${pkgdir}/usr/share/applications/nedit.desktop"
+  # install icons
+  for r in 256x256 128x128 64x64 48x48 32x32 24x24 16x16
+  do
+    install -Dm644 ../nedit-${r}.png "${pkgdir}/usr/share/icons/hicolor/${r}/apps/nedit.png"
+  done
+}
+
