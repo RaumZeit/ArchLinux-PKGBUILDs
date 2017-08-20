@@ -4,7 +4,7 @@
 # Maintainer: Ronny Lorenz <raumzeit@gmx.net>
 
 pkgname=nedit-motif
-pkgver=5.6a
+pkgver=5.7
 pkgrel=1
 pkgdesc="A Unix text editor for programmers and general users"
 dirname=nedit
@@ -14,6 +14,7 @@ license=('GPL' 'custom')
 depends=('openmotif' 'libxpm')
 provides=('nedit')
 conflicts=('nedit')
+options=('!makeflags')
 source=("http://sourceforge.net/projects/nedit/files/nedit-source/${dirname}-${pkgver}-src.tar.gz"
         "nedit-256x256.png"
         "nedit-128x128.png"
@@ -24,32 +25,31 @@ source=("http://sourceforge.net/projects/nedit/files/nedit-source/${dirname}-${p
         "nedit-16x16.png"
         "nedit.desktop")
 
-sha1sums=('3f7a39bf0968cf0598bf8d6e2062f243f3aaac96'
-          'e238821d30a95fc8181fc12c42c8cbcf5ee00b96'
-          '9c921b361a587111e927b300ba09360c4245a679'
-          'b98ddef927b952e21a4dc566496d077c8faa9eae'
-          '18305a2ff376a4effaa47c7304215fe841261a3d'
-          '782be7c47e1fc221d809c49e347ea5f651501ec0'
-          'cc7faee0da681b2935a7ea2538f9963f8b99f9db'
-          '708ce070e29d430ae93d35056ab0d71264305354'
+sha1sums=('7cd264860ff75b4c64417aa09ca4ce03e4be2b4e'
+          '3340e5bc8e59d71b3a28b9d9ccd8c703e866f46e'
+          'e2b98fdd6c46def4b467a020b3eddf8ed3cb6528'
+          '17054b4aa743d04f85be3adb57e58ae4cec0afdd'
+          '54ff5d2014c2459fb69bddc38cc6162cc79f1a26'
+          'aae983b332eb14ae23c6618296ff01a18106ff8f'
+          '3fc471b7e45f855f4e3d71d0818ff11648e8e70e'
+          '4c6b21a82b00b5089bab47c7bbb143323b36a76b'
           '1f42ba5681006a39bed2f4036802e3d1c731d2ef')
 
 LANG=C
 prepare() {
-  cd "${srcdir}/${dirname}-${pkgver/a/}"
+  cd "${srcdir}/${dirname}-${pkgver}"
   sed -i 's/-Wl,-Bstatic//' makefiles/Makefile.linux
-  sed -i 's|fgets|//fgets|' util/check_lin_tif.c
   sed -i "s/CFLAGS=-O/CFLAGS=${CFLAGS} -DBUILD_UNTESTED_NEDIT/" makefiles/Makefile.linux
   sed -i 's|"/bin/csh"|"/bin/sh"|' source/preferences.c
 }
 
 build() {
-  cd ${dirname}-${pkgver/a/}
+  cd ${dirname}-${pkgver}
   make CFLAGS+="${CFLAGS} -DBUILD_UNTESTED_NEDIT" linux docs
 }
 
 package() {
-  cd ${dirname}-${pkgver/a/}
+  cd ${dirname}-${pkgver}
   install -Dm755 source/nedit "${pkgdir}/usr/bin/nedit"
   install -Dm755 source/nc "${pkgdir}/usr/bin/nedit-client"
   install -Dm644 doc/nedit.man "${pkgdir}/usr/share/man/man1/nedit.1"
